@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,11 @@ builder.Services.AddAuthentication(o =>
     o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     //NOTES This specifies how to respond when an unauthenticated user tries to access a protected endpoint.
     o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(opt =>
+    // Add default sign-in scheme for external authentication providers
+    o.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddJwtBearer(opt =>
 {
     opt.RequireHttpsMetadata = false;
     opt.SaveToken = true;
@@ -47,6 +52,8 @@ builder.Services.AddAuthentication(o =>
     opt.Scope.Add("email");
     opt.Scope.Add("profile");
     opt.SaveTokens = true;
+    // Specify the sign-in scheme for Google authentication
+    opt.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 });
 
 builder.Services.AddControllers().AddJsonOptions(opt =>
